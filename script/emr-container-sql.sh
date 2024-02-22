@@ -1,7 +1,10 @@
+# ./emr-container-sql.sh s3://$S3BUCKET/testsql/ 2 12 Name=eks-202402220-od-arm-sql1 od-arm od-arm
 export SQL_S3_PATH=$1
 export CORES=$2
 export MEMORY=$3
 export TAG=$4
+export DRIVER_POD_TEMPLATE="driver-$5-pod-template.yaml"
+export EXECUTOR_POD_TEMPLATE="executor-$6-pod-template.yaml"
 # export TIMESTAMP=`date +%y-%m-%d-%H-%M-%S`
 
 export CORES="${CORES:-4}"
@@ -16,13 +19,10 @@ export ACCOUNTID="${ACCOUNTID:-$(aws sts get-caller-identity --query Account --o
 export AWS_REGION="${AWS_REGION:-$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')}"
 export S3BUCKET="${S3BUCKET:-${EKSCLUSTER_NAME}-${ACCOUNTID}-${AWS_REGION}}"
 
-export VIRTUAL_CLUSTER_ID="${VIRTUAL_CLUSTER_ID:-ljrijghqvn7i1tr0138ekc6wo}"
+export VIRTUAL_CLUSTER_ID="${VIRTUAL_CLUSTER_ID:-406xiic2jaj0130dwo9fr053v}"
 export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/$EKSCLUSTER_NAME-execution-role
 export ECR_URL="$ACCOUNTID.dkr.ecr.$AWS_REGION.amazonaws.com"
 export MAIN_SCRIPT_PATH="s3://${S3BUCKET}/script/emr-container-sql.py"
-
-export DRIVER_POD_TEMPLATE="${DRIVER_POD_TEMPLATE:-driver-od-amd-pod-template.yaml}"
-export EXECUTOR_POD_TEMPLATE="${EXECUTOR_POD_TEMPLATE:-executor-od-amd-pod-template.yaml}"
 
 aws emr-containers start-job-run \
   --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
